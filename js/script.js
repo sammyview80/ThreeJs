@@ -1,5 +1,8 @@
 import * as THREE from 'three'
 
+// For mobility of camera.
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+
 // Create instance of webglrender
 const renderer = new THREE.WebGL1Renderer()
 
@@ -24,5 +27,33 @@ const camera = new THREE.PerspectiveCamera(
   1000
 )
 
-// Render the scene and camera
-renderer.render(scene, camera)
+// Mobility of camear with mouse: 1
+const orbit = new OrbitControls(camera, renderer.domElement)
+
+// To show the axis
+const axesHelper = new THREE.AxesHelper(5)
+scene.add(axesHelper)
+
+camera.position.set(0, 2, 5)
+
+// 1: update the orbit
+orbit.update()
+
+// Create a geometry
+const boxGeometry = new THREE.BoxGeometry()
+// Create a instance of material for the geometry
+const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 })
+// Create a mesh with geometry and material.
+const box = new THREE.Mesh(boxGeometry, boxMaterial)
+
+// Add box to scen to display
+scene.add(box)
+
+function animate() {
+  box.rotation.x += 0.01
+  box.rotation.y += 0.01
+  // Render the scene and camera
+  renderer.render(scene, camera)
+}
+
+renderer.setAnimationLoop(animate)
