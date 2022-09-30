@@ -6,6 +6,9 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 // Create instance of webglrender
 const renderer = new THREE.WebGL1Renderer()
 
+// Show shadow
+renderer.shadowMap.enabled = true
+
 // Set the size of the space.
 renderer.setSize(window.innerWidth, window.innerHeight)
 
@@ -51,7 +54,7 @@ scene.add(box)
 
 // Adding the plane
 const planeGeometry = new THREE.PlaneGeometry(30, 30)
-const planeMaterial = new THREE.MeshBasicMaterial({
+const planeMaterial = new THREE.MeshStandardMaterial({
   color: 0xffffff,
   side: THREE.DoubleSide
 })
@@ -59,18 +62,50 @@ const plane = new THREE.Mesh(planeGeometry, planeMaterial)
 scene.add(plane)
 // Rotate the plane
 plane.rotation.x = -0.5 * Math.PI
+// Receive shadow
+plane.receiveShadow = true
 
 // Adding sphare
 const sphereGeometry = new THREE.SphereGeometry(4, 50, 50)
-const sphereMaterial = new THREE.MeshBasicMaterial({
+const sphereMaterial = new THREE.MeshStandardMaterial({
   color: 0x0000ff,
   wireframe: false
 })
 const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
 scene.add(sphere)
-sphere.position.x = 10
+sphere.position.x = -10
 sphere.position.y = 10
-sphere.position.z = 10
+sphere.position.z = 0
+// Cast the shadow
+sphere.castShadow = true
+
+const ambientLight = new THREE.AmbientLight(0x333333)
+scene.add(ambientLight)
+
+// const directionaLight = new THREE.DirectionalLight(0xffffff, 0.8)
+// scene.add(directionaLight)
+// // Set the position of directionaLight
+// directionaLight.position.set(-30, 50, 0)
+// // Cast shadow
+// directionaLight.castShadow = true
+// directionaLight.shadow.camera.bottom = -10
+// // Add a directional light helper
+// const dLightHelper = new THREE.DirectionalLightHelper(directionaLight, 5)
+// scene.add(dLightHelper)
+
+// // Add the shadow camera helper
+// const dLightShadowHelper = new THREE.CameraHelper(directionaLight.shadow.camera)
+// scene.add(dLightShadowHelper)
+
+// Spotlight
+const spotLight = new THREE.SpotLight(0xffffff)
+scene.add(spotLight)
+spotLight.castShadow = true
+spotLight.angle = 0.75
+spotLight.position.set(-30, 30, 0)
+
+const sLightHelper = new THREE.SpotLightHelper(spotLight)
+scene.add(sLightHelper)
 
 // Gui pallet
 const gui = new dat.GUI()
@@ -79,7 +114,10 @@ const gui = new dat.GUI()
 const optionsSphere = {
   shpereColor: '#ffea00',
   speed: 0.01,
-  wireframe: false
+  wireframe: false,
+  angle: 0.2,
+  penumbra: 0,
+  intensity: 1
 }
 // color option for square
 const optionsBox = {
@@ -100,6 +138,11 @@ gui.add(optionsSphere, 'wireframe').onChange(function (e) {
 // Set the speed bounce
 gui.add(optionsSphere, 'speed', 0, 1)
 
+// Set the spotlight value and using spheraOptions
+gui.add(optionsSphere, 'angle', 0, 1)
+gui.add(optionsSphere, 'penumbra', 0, 1)
+gui.add(optionsSphere, 'intensity', 0, 1)
+
 gui.addColor(optionsBox, 'squareColor').onChange(function (e) {
   box.material.color.set(e)
 })
@@ -115,6 +158,11 @@ function animate() {
 
   step += optionsSphere.speed
   sphere.position.y = 10 * Math.abs(Math.sin(step))
+
+  spotLight.angle = optionsSphere.angle
+  spotLight.penumbra = optionsSphere.penumbra
+  spotLight.intensity = optionsSphere.intensity
+  sLightHelper.update()
 
   // Render the scene and camera
   renderer.render(scene, camera)
