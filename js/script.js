@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-
+import * as dat from 'dat.gui'
 // For mobility of camera.
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 
@@ -34,7 +34,7 @@ const orbit = new OrbitControls(camera, renderer.domElement)
 const axesHelper = new THREE.AxesHelper(5)
 scene.add(axesHelper)
 
-camera.position.set(0, 2, 5)
+camera.position.set(-10, 30, 30)
 
 // 1: update the orbit
 orbit.update()
@@ -49,9 +49,73 @@ const box = new THREE.Mesh(boxGeometry, boxMaterial)
 // Add box to scen to display
 scene.add(box)
 
+// Adding the plane
+const planeGeometry = new THREE.PlaneGeometry(30, 30)
+const planeMaterial = new THREE.MeshBasicMaterial({
+  color: 0xffffff,
+  side: THREE.DoubleSide
+})
+const plane = new THREE.Mesh(planeGeometry, planeMaterial)
+scene.add(plane)
+// Rotate the plane
+plane.rotation.x = -0.5 * Math.PI
+
+// Adding sphare
+const sphereGeometry = new THREE.SphereGeometry(4, 50, 50)
+const sphereMaterial = new THREE.MeshBasicMaterial({
+  color: 0x0000ff,
+  wireframe: false
+})
+const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial)
+scene.add(sphere)
+sphere.position.x = 10
+sphere.position.y = 10
+sphere.position.z = 10
+
+// Gui pallet
+const gui = new dat.GUI()
+
+// color option for shpere
+const optionsSphere = {
+  shpereColor: '#ffea00',
+  speed: 0.01,
+  wireframe: false
+}
+// color option for square
+const optionsBox = {
+  squareColor: '#ffea00',
+  wireframe: false
+}
+
+// Change the color onChange on pallet value
+gui.addColor(optionsSphere, 'shpereColor').onChange(function (e) {
+  sphere.material.color.set(e)
+})
+
+// Set the wireframe
+gui.add(optionsSphere, 'wireframe').onChange(function (e) {
+  sphere.material.wireframe = e
+})
+
+// Set the speed bounce
+gui.add(optionsSphere, 'speed', 0, 1)
+
+gui.addColor(optionsBox, 'squareColor').onChange(function (e) {
+  box.material.color.set(e)
+})
+
+let step = 0
+
+const gridHelper = new THREE.GridHelper(30)
+scene.add(gridHelper)
+
 function animate() {
   box.rotation.x += 0.01
   box.rotation.y += 0.01
+
+  step += optionsSphere.speed
+  sphere.position.y = 10 * Math.abs(Math.sin(step))
+
   // Render the scene and camera
   renderer.render(scene, camera)
 }
