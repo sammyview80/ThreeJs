@@ -9,6 +9,9 @@ const renderer = new THREE.WebGL1Renderer()
 // Show shadow
 renderer.shadowMap.enabled = true
 
+// Set background color
+renderer.setClearColor(0xffea00)
+
 // Set the size of the space.
 renderer.setSize(window.innerWidth, window.innerHeight)
 
@@ -103,6 +106,11 @@ scene.add(spotLight)
 spotLight.castShadow = true
 spotLight.angle = 0.75
 spotLight.position.set(-30, 30, 0)
+
+// Adding fog
+// scene.fog = new THREE.Fog(0xffffff, 0, 100)
+// Fog grow exponentially when camera is moved
+scene.fog = new THREE.FogExp2(0xffffff, 0.01)
 
 const sLightHelper = new THREE.SpotLightHelper(spotLight)
 scene.add(sLightHelper)
